@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 // Register
 const registerUser = async (req, res) => {
   try {
+    console.log("Register Request:", req.body);
+
     const { name, email, password } = req.body;
 
     const userExists = await User.findOne({ email });
@@ -16,11 +18,7 @@ const registerUser = async (req, res) => {
     }
 
     const salt = await bcrypt.genSalt(10);
-
-    const hashedPassword = await bcrypt.hash(
-      password,
-      salt
-    );
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
       name,
@@ -37,6 +35,8 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("REGISTER ERROR:", error);
+
     res.status(500).json({
       message: error.message,
     });
@@ -46,6 +46,8 @@ const registerUser = async (req, res) => {
 // Login
 const loginUser = async (req, res) => {
   try {
+    console.log("Login Request:", req.body);
+
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -68,13 +70,9 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: user._id,
-      },
+      { id: user._id },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
+      { expiresIn: "7d" }
     );
 
     res.json({
@@ -86,6 +84,8 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
     res.status(500).json({
       message: error.message,
     });
